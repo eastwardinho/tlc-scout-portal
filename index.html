@@ -515,9 +515,7 @@
     });
 
     // --- Submit ---
-    const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-      ? 'http://127.0.0.1:3300'
-      : 'https://scout-api.eastwoods.co'; // Update when deployed
+    const API_URL = 'http://100.121.22.16:3300'; // GX10-1 via Tailscale
 
     $('submit-btn').addEventListener('click', async () => {
       if ($('submit-btn').disabled) return;
