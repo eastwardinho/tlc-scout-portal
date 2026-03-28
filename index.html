@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TLC Scout</title>
+  <link rel="icon" href="assets/tlc-favicon.png" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    @font-face {
+      font-family: 'Clash Grotesk';
+      src: url('https://cdn.jsdelivr.net/gh/nicetotype/clashgrotesk@main/fonts/ClashGrotesk-Medium.woff2') format('woff2');
+      font-weight: 500;
+      font-display: swap;
+    }
+
+    :root {
+      --primary: #2F4273;
+      --accent: #CCA170;
+      --bg: #FFFFFF;
+      --surface: #F7F7F7;
+      --border: #E5E5E5;
+      --text: #171717;
+      --muted: #737373;
+      --footer-color: #A3A3A3;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Manrope', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 24px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 600px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 40px 0 120px;
+    }
+
+    /* States */
+    .state { display: none; width: 100%; flex-direction: column; align-items: center; }
+    .state.active { display: flex; animation: fadeIn 0.4s ease; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Logo */
+    .logo { margin-bottom: 48px; }
+    .state-a .logo { width: 140px; }
+    .state-b .logo { width: 200px; }
+    .state-c .logo { display: none; }
+
+    @media (max-width: 768px) {
+      .state-b .logo { width: 160px; }
+    }
+
+    /* Headings */
+    h1 {
+      font-family: 'Clash Grotesk', system-ui, sans-serif;
+      font-weight: 500;
+      text-align: center;
+      color: var(--text);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .state-a h1 { font-size: 24px; margin-bottom: 48px; }
+    .state-c h1 { font-size: 32px; }
+
+    /* Password input */
+    .password-input {
+      height: 56px;
+      width: 100%;
+      max-width: 300px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      font-family: 'Manrope', sans-serif;
+      font-size: 20px;
+      text-align: center;
+      color: var(--text);
+      padding: 0 24px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .password-input:focus { border-color: var(--primary); }
+    .password-input::placeholder { color: var(--muted); }
+
+    .error-msg {
+      color: #ef4444;
+      font-size: 14px;
+      min-height: 24px;
+      margin-top: 12px;
+      text-align: center;
+    }
+
+    /* Buttons */
+    .btn-primary {
+      height: 56px;
+      width: 100%;
+      max-width: 300px;
+      background: var(--primary);
+      color: #fff;
+      font-family: 'Clash Grotesk', system-ui, sans-serif;
+      font-size: 16px;
+      font-weight: 500;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      border: none;
+      border-radius: 100px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .btn-primary:hover:not(:disabled) {
+      background: #243458;
+      box-shadow: 0 4px 16px rgba(47,66,115,0.2);
+      transform: translateY(-1px);
+    }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .btn-ghost {
+      height: 56px;
+      max-width: 300px;
+      width: 100%;
+      background: transparent;
+      color: var(--primary);
+      font-family: 'Clash Grotesk', system-ui, sans-serif;
+      font-size: 16px;
+      font-weight: 500;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      border: none;
+      border-radius: 100px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-ghost:hover { background: var(--surface); }
+
+    /* Input bar */
+    .input-bar {
+      height: 60px;
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      display: flex;
+      align-items: center;
+      padding: 0 8px 0 24px;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+    .input-bar:hover, .input-bar:focus-within {
+      border-color: var(--primary);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+
+    .input-bar input[type="url"] {
+      flex: 1;
+      border: none;
+      outline: none;
+      font-family: 'Manrope', sans-serif;
+      font-size: 16px;
+      color: var(--text);
+      background: transparent;
+      min-width: 0;
+    }
+    .input-bar input[type="url"]::placeholder { color: var(--muted); }
+    .input-bar input[type="url"]:disabled { opacity: 0.5; }
+
+    .divider {
+      width: 1px;
+      height: 28px;
+      background: var(--border);
+      flex-shrink: 0;
+    }
+
+    .file-btn {
+      width: 48px;
+      height: 48px;
+      border: none;
+      background: transparent;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--primary);
+      transition: background 0.2s;
+      flex-shrink: 0;
+    }
+    .file-btn:hover { background: var(--surface); }
+    .file-btn svg { width: 22px; height: 22px; }
+
+    .file-name {
+      font-size: 14px;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 180px;
+    }
+
+    .clear-btn {
+      width: 36px;
+      height: 36px;
+      border: none;
+      background: transparent;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+    .clear-btn:hover { background: var(--surface); color: var(--text); }
+    .clear-btn svg { width: 18px; height: 18px; }
+
+    .hidden { display: none !important; }
+
+    /* Market selector */
+    .market-section {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 32px;
+    }
+
+    .market-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    .market-pills {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .market-pill {
+      padding: 14px 28px;
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      background: var(--surface);
+      color: var(--muted);
+      font-family: 'Manrope', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      min-height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .market-pill:hover { border-color: var(--primary); color: var(--text); }
+    .market-pill.selected {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    /* Submit area */
+    .submit-area {
+      margin-top: 48px;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+    }
+
+    /* Confirmation */
+    .check-icon { color: var(--accent); margin-bottom: 24px; }
+    .confirm-msg {
+      font-size: 16px;
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.6;
+      margin-top: 16px;
+      max-width: 400px;
+    }
+    .new-req-area { margin-top: 32px; width: 100%; display: flex; justify-content: center; }
+
+    /* Footer */
+    .footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: var(--bg);
+    }
+    .footer-inner {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--footer-color);
+      font-size: 12px;
+    }
+    .footer-logo { max-height: 14px; opacity: 0.6; }
+
+    @media (max-width: 480px) {
+      .container { padding: 24px 0 140px; }
+      .state-a .logo { width: 120px; }
+      .state-a h1 { font-size: 20px; margin-bottom: 32px; }
+      .state-c h1 { font-size: 26px; }
+      .input-bar { height: 56px; }
+      .market-pill { padding: 12px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+
+    <!-- STATE A: Password Gate -->
+    <div id="state-a" class="state state-a active">
+      <img src="assets/tlc-logo-blue.svg" alt="TLC Modular" class="logo">
+      <h1>Scout Access</h1>
+      <input
+        type="password"
+        id="pw"
+        class="password-input"
+        placeholder="YYMMDD"
+        inputmode="numeric"
+        maxlength="6"
+        autocomplete="off"
+      >
+      <div id="pw-error" class="error-msg"></div>
+      <button id="pw-btn" class="btn-primary" style="margin-top:16px">Enter</button>
+    </div>
+
+    <!-- STATE B: Main Form -->
+    <div id="state-b" class="state state-b">
+      <img src="assets/tlc-logo-blue.svg" alt="TLC Modular" class="logo">
+
+      <div class="input-bar" id="input-bar">
+        <input type="url" id="url-input" placeholder="Paste product URL..." autocomplete="off">
+        <div class="divider" id="divider"></div>
+        <button class="file-btn" id="file-btn" title="Upload photo or PDF">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+          </svg>
+        </button>
+        <span id="file-name" class="file-name hidden"></span>
+        <button id="clear-btn" class="clear-btn hidden" title="Clear file">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+        <input type="file" id="file-input" accept="image/*,application/pdf" class="hidden">
+      </div>
+
+      <div class="market-section">
+        <span class="market-label">Target Market</span>
+        <div class="market-pills">
+          <button class="market-pill" data-market="aus-nz">Aus/NZ</button>
+          <button class="market-pill" data-market="usa">USA</button>
+          <button class="market-pill" data-market="uk-eu">UK/EU</button>
+        </div>
+      </div>
+
+      <div class="submit-area">
+        <button id="submit-btn" class="btn-primary" disabled>Submit Request</button>
+      </div>
+    </div>
+
+    <!-- STATE C: Confirmation -->
+    <div id="state-c" class="state state-c">
+      <svg class="check-icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+        <polyline points="22 4 12 14.01 9 11.01"/>
+      </svg>
+      <h1>Request Submitted</h1>
+      <p class="confirm-msg">The Scout pipeline is running.<br>Joe will receive the report shortly.</p>
+      <div class="new-req-area">
+        <button id="new-req-btn" class="btn-ghost">New Request</button>
+      </div>
+    </div>
+
+  </div>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <span>Produced by</span>
+      <img src="assets/eastwood-logo.svg" alt="Eastwood Consultants" class="footer-logo">
+    </div>
+  </footer>
+
+  <script>
+    // --- Helpers ---
+    const $ = id => document.getElementById(id);
+    const show = id => { document.querySelectorAll('.state').forEach(s => s.classList.remove('active')); $(id).classList.add('active'); };
+
+    // --- State ---
+    let selectedMarket = null;
+    let hasInput = false;
+    let selectedFile = null;
+
+    // --- Password Gate ---
+    function getTodayYYMMDD() {
+      const d = new Date();
+      const yy = String(d.getFullYear()).slice(-2);
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const dd = String(d.getDate()).padStart(2, '0');
+      return yy + mm + dd;
+    }
+
+    function checkPassword() {
+      const input = $('pw').value.trim();
+      if (input === getTodayYYMMDD()) {
+        $('pw-error').textContent = '';
+        show('state-b');
+      } else {
+        $('pw-error').textContent = 'Incorrect access code';
+        $('pw').value = '';
+        $('pw').focus();
+      }
+    }
+
+    $('pw-btn').addEventListener('click', checkPassword);
+    $('pw').addEventListener('keydown', e => { if (e.key === 'Enter') checkPassword(); });
+
+    // --- Input Bar ---
+    const urlInput = $('url-input');
+    const fileInput = $('file-input');
+    const fileBtn = $('file-btn');
+    const fileName = $('file-name');
+    const clearBtn = $('clear-btn');
+    const divider = $('divider');
+
+    function updateSubmitState() {
+      hasInput = !!(urlInput.value.trim() || selectedFile);
+      $('submit-btn').disabled = !(hasInput && selectedMarket);
+    }
+
+    // URL input
+    urlInput.addEventListener('input', () => {
+      if (urlInput.value.trim()) {
+        fileBtn.classList.add('hidden');
+        divider.classList.add('hidden');
+      } else {
+        fileBtn.classList.remove('hidden');
+        divider.classList.remove('hidden');
+      }
+      updateSubmitState();
+    });
+
+    // File upload
+    fileBtn.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', () => {
+      if (fileInput.files.length > 0) {
+        selectedFile = fileInput.files[0];
+        fileName.textContent = selectedFile.name;
+        fileName.classList.remove('hidden');
+        clearBtn.classList.remove('hidden');
+        fileBtn.classList.add('hidden');
+        divider.classList.add('hidden');
+        urlInput.disabled = true;
+        urlInput.value = '';
+        urlInput.placeholder = selectedFile.name;
+      }
+      updateSubmitState();
+    });
+
+    // Clear file
+    clearBtn.addEventListener('click', () => {
+      selectedFile = null;
+      fileInput.value = '';
+      fileName.classList.add('hidden');
+      clearBtn.classList.add('hidden');
+      fileBtn.classList.remove('hidden');
+      divider.classList.remove('hidden');
+      urlInput.disabled = false;
+      urlInput.placeholder = 'Paste product URL...';
+      updateSubmitState();
+    });
+
+    // --- Market Selection ---
+    document.querySelectorAll('.market-pill').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.market-pill').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        selectedMarket = btn.dataset.market;
+        updateSubmitState();
+      });
+    });
+
+    // --- Submit ---
+    const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+      ? 'http://127.0.0.1:3300'
+      : 'https://scout-api.eastwoods.co'; // Update when deployed
+
+    $('submit-btn').addEventListener('click', async () => {
+      if ($('submit-btn').disabled) return;
+      const btn = $('submit-btn');
+      btn.disabled = true;
+      btn.textContent = 'Submitting...';
+
+      try {
+        const formData = new FormData();
+        formData.append('market', selectedMarket);
+        if (selectedFile) {
+          formData.append('file', selectedFile);
+        } else {
+          formData.append('url', urlInput.value.trim());
+        }
+
+        const resp = await fetch(`${API_URL}/api/submit`, {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await resp.json();
+        if (data.ok) {
+          show('state-c');
+        } else {
+          alert(data.error || 'Submission failed. Please try again.');
+          btn.disabled = false;
+          btn.textContent = 'Submit Request';
+        }
+      } catch (err) {
+        alert('Could not reach the server. Please try again.');
+        btn.disabled = false;
+        btn.textContent = 'Submit Request';
+      }
+    });
+
+    // --- New Request ---
+    $('new-req-btn').addEventListener('click', () => {
+      // Reset form
+      urlInput.value = '';
+      urlInput.disabled = false;
+      urlInput.placeholder = 'Paste product URL...';
+      selectedFile = null;
+      fileInput.value = '';
+      fileName.classList.add('hidden');
+      clearBtn.classList.add('hidden');
+      fileBtn.classList.remove('hidden');
+      divider.classList.remove('hidden');
+      selectedMarket = null;
+      document.querySelectorAll('.market-pill').forEach(b => b.classList.remove('selected'));
+      $('submit-btn').disabled = true;
+      show('state-b');
+    });
+  </script>
+</body>
+</html>
